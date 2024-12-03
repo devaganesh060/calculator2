@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientific Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(360deg, #3700ff, #ff00f2);
+            margin: 0;
+        }
+        .calculator-container {
+            width: 100%;
+            height: 100%;
+            max-width: 600px;
+            max-height: 800px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        h2 {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+        #input-area {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            text-align: left;
+            box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.3);
+        }
+        #result-area {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.5em;
+            color: #000000;
+            background: #ffffff;
+            text-align: right;
+            outline: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .btn-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            padding: 10px;
+            font-size: 1.2em;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn:hover {
+            background: #e600ff;
+        }
+        .btn.operation {
+            background: #3700ff;
+        }
+        .btn:active {
+            background: #e600ff;
+        }
+        .error {
+            color: red;
+            font-size: 1em;
+            text-align: center;
+            margin-top: 10px;
+        }
+        /* Mobile Responsive Styles */
+        @media only screen and (max-width: 600px) {
+            .btn-container {
+                grid-template-columns: repeat(4, 1fr);  /* Keep 4 buttons per row for mobile */
+            }
+            .btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1em; /* Adjust font size for smaller screens */
+            }
+            #input-area, #result-area {
+                font-size: 1.1em; /* Increase text size for mobile readability */
+            }
+            .calculator-container {
+                padding: 15px;
+                max-width: 100%; /* Allow full-width for mobile screens */
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h2>Calculator</h2>
+        <input type="text" id="input-area" placeholder="Enter calculations here">
+        <input type="text" id="result-area" placeholder="" disabled>
+        <div class="btn-container">
+            <button class="btn" onclick="appendNumber('7')">7</button>
+            <button class="btn" onclick="appendNumber('8')">8</button>
+            <button class="btn" onclick="appendNumber('9')">9</button>
+            <button class="btn operation" onclick="appendOperation('/')">÷</button>
+            <button class="btn" onclick="appendNumber('4')">4</button>
+            <button class="btn" onclick="appendNumber('5')">5</button>
+            <button class="btn" onclick="appendNumber('6')">6</button>
+            <button class="btn operation" onclick="appendOperation('*')">×</button>
+            <button class="btn" onclick="appendNumber('1')">1</button>
+            <button class="btn" onclick="appendNumber('2')">2</button>
+            <button class="btn" onclick="appendNumber('3')">3</button>
+            <button class="btn operation" onclick="appendOperation('-')">−</button>
+            <button class="btn" onclick="appendNumber('0')">0</button>
+            <button class="btn operation" onclick="appendOperation('+')">+</button>
+            <button class="btn operation" onclick="calculate()">=</button>
+            <button class="btn" onclick="clearDisplay()">C</button>
+            <!-- Additional buttons for power and sqrt -->
+            <button class="btn operation" onclick="appendOperation('**')">^</button>
+            <button class="btn operation" onclick="sqrt()">√</button>
+        </div>
+        <div class="error" id="error-message"></div>
+    </div>
+
+    <script>
+        const inputArea = document.getElementById('input-area');
+        const resultArea = document.getElementById('result-area');
+        const errorMessage = document.getElementById('error-message');
+
+        // Append numbers to input
+        function appendNumber(number) {
+            clearError();
+            insertAtCursor(inputArea, number);
+        }
+
+        // Append operators to input
+        function appendOperation(operation) {
+            clearError();
+            insertAtCursor(inputArea, operation);
+        }
+
+        // Handle calculation and display results
+        function calculate() {
+            try {
+                clearError();
+                let result = eval(inputArea.value);
+                resultArea.value = result;
+            } catch (e) {
+                showError("Invalid input or calculation error");
+            }
+        }
+
+        // Clear the input and result areas
+        function clearDisplay() {
+            inputArea.value = '';
+            resultArea.value = '';
+            clearError();
+        }
+
+        // Clear error message
+        function clearError() {
+            errorMessage.innerHTML = '';
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.innerHTML = message;
+        }
+
+        // Insert text at the current cursor position
+        function insertAtCursor(input, text) {
+            const cursorPos = input.selectionStart;
+            const beforeText = input.value.substring(0, cursorPos);
+            const afterText = input.value.substring(cursorPos);
+            input.value = beforeText + text + afterText;
+            input.selectionStart = input.selectionEnd = cursorPos + text.length;
+        }
+
+        // Square root function
+        function sqrt() {
+            try {
+                clearError();
+                let value = parseFloat(inputArea.value);
+                if (value < 0) {
+                    showError("Cannot compute square root of a negative number.");
+                    return;
+                }
+                resultArea.value = Math.sqrt(value);
+            } catch (e) {
+                showError("Invalid input for square root.");
+            }
+        }
+    </script>
+</body>
+</html>
